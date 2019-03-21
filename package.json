@@ -18,8 +18,8 @@
       "pages": "."
     },
     "dist": {
-      "base": "static",
-      "assets": "assets"
+      "base": "static/assets",
+      "assets": "."
     }
   },
   "devDependencies": {

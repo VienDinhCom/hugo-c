@@ -84,7 +84,7 @@ gulp.task('styles', function() {
         return null;
       })
     )
-    .pipe($.concat('main.scss', { newLine: '\n' }))
+    .pipe($.concat('app.scss', { newLine: '\n' }))
     .pipe($.sass({ outputStyle: 'expanded' }).on('error', $.sass.logError))
     .pipe(
       $.autoprefixer({
@@ -104,7 +104,7 @@ gulp.task('scripts', function scripts() {
     .pipe(
       $.if(function(file) {
         return path.basename(file.path) !== 'global.js';
-      }, $.insert.prepend("$(':host').exists(function() {\n"))
+      }, $.insert.prepend("jQuery(':host').exists(function() {\n"))
     )
     .pipe(
       $.if(function(file) {
@@ -133,7 +133,7 @@ gulp.task('scripts', function scripts() {
         return null;
       })
     )
-    .pipe($.concat('main.js'))
+    .pipe($.concat('app.js'))
     .pipe($.eslint({ fix: true }))
     .pipe($.sourcemaps.write('./maps'))
     .pipe(gulp.dest(getPaths().dist.assets))
@@ -174,10 +174,7 @@ gulp.task('clean', function() {
 
 gulp.task(
   'build',
-  gulp.series(
-    'clean',
-    gulp.parallel('scripts', 'styles', 'images', 'vendor')
-  )
+  gulp.series('clean', gulp.parallel('scripts', 'styles', 'images', 'vendor'))
 );
 
 gulp.task('serve', function() {
@@ -191,23 +188,28 @@ gulp.task('serve', function() {
 });
 
 gulp.task('watch', function() {
-  var src = getPaths().src;
+  $.watch(
+    [path.join(getPaths().src.base, 'images/**/*')],
+    gulp.parallel('images')
+  );
 
-  $.watch([path.join(src.base, 'images/**/*')], gulp.parallel('images'));
-  $.watch([path.join(src.base, 'vendor/**/*')], gulp.parallel('vendor'));
+  $.watch(
+    [path.join(getPaths().src.base, 'vendor/**/*')],
+    gulp.parallel('vendor')
+  );
 
   $.watch(
     [
-      path.join(src.base, 'global/**/*.{scss,css}'),
-      path.join(src.base, 'components/**/*.{scss,css}'),
+      path.join(getPaths().src.base, 'global/**/*.scss'),
+      path.join(getPaths().src.components, '**/*.scss'),
     ],
     gulp.parallel('styles')
   );
 
   $.watch(
     [
-      path.join(src.base, 'global/**/*.js'),
-      path.join(src.base, 'components/**/*.js'),
+      path.join(getPaths().src.base, 'global/**/*.js'),
+      path.join(getPaths().src.components, '**/*.js'),
     ],
     gulp.parallel('scripts')
   );

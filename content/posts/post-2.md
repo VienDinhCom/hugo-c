@@ -2,7 +2,7 @@
 title: 'Post 1'
 date: 2018-11-14T19:02:50-07:00
 draft: false
-type: post
+type: type-post
 layout: single
 ---
 
