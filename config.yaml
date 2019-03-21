@@ -1,0 +1,9 @@
+baseurl: "/"
+languageCode: "en-us"
+languageLang: "en"
+title: "My new Victor-Hugo site"
+
+disableKinds:
+  - "RSS"
+  - "taxonomy"
+  - "taxonomyTerm"
