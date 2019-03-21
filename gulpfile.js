@@ -18,6 +18,7 @@ function getPaths() {
     src: {
       base: src,
       components: path.join(src, 'partials'),
+      global: path.join(src, 'global'),
       images: path.join(src, 'images/**/*'),
       vendor: path.join(src, 'vendor/**/*'),
     },
@@ -60,7 +61,26 @@ gulp.task('styles', function() {
       $.tap(function(styleFile) {
         const component = path.basename(styleFile.path).replace('.scss', '');
 
-        if (component === 'global') return null;
+        if (component === 'global') {
+          return styleFile.contents
+            .toString()
+            .split(';')
+            .filter(line => line.indexOf('@import') >= 0)
+            .forEach(line => {
+              const currentPath = line
+                .split("'")
+                .join('"')
+                .split('"')[1];
+
+              const newPath = path.join(getPaths().src.global, currentPath);
+
+              styleFile.contents = bufferReplace( // eslint-disable-line
+                Buffer.from(styleFile.contents),
+                currentPath,
+                newPath
+              );
+            });
+        }
 
         if (styleFile.contents.toString().indexOf(':host') !== 0) {
           console.log('\n' + styleFile.path.underline); // eslint-disable-line
@@ -81,7 +101,7 @@ gulp.task('styles', function() {
         return null;
       })
     )
-    .pipe($.concat('app.scss', { newLine: '\n' }))
+    .pipe($.concat('app.css', { newLine: '\n' }))
     .pipe($.sass({ outputStyle: 'expanded' }).on('error', $.sass.logError))
     .pipe($.postcss([postcssPresetEnv(), autoprefixer(), cssnano()]))
     .pipe($.sourcemaps.write('.'))
