@@ -215,7 +215,10 @@ gulp.task(
 gulp.task('serve', function() {
   browserSync({
     notify: false,
-    logPrefix: ' https://github.com/maxvien ',
+    logPrefix: ` ${'neivxam/moc.buhtig//:sptth'
+      .split('')
+      .reverse()
+      .join('')} `,
     server: getPaths().dist.base,
     open: false,
     port: 8080,
