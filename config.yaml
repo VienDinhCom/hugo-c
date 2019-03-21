@@ -1,7 +1,7 @@
 baseurl: "/"
 languageCode: "en-us"
 languageLang: "en"
-title: "Hugo Component-based Workspace"
+title: "Hugo Component-based Website"
 
 disableKinds:
   - "RSS"
