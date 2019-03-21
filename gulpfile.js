@@ -102,7 +102,25 @@ gulp.task('styles', function() {
       })
     )
     .pipe($.concat('app.css', { newLine: '\n' }))
-    .pipe($.sass({ outputStyle: 'expanded' }).on('error', $.sass.logError))
+    .pipe(
+      $.sass({ outputStyle: 'expanded' }).on(
+        'error',
+        ({ file, line, column, message }) => {
+          const currentFileName = path.basename(file);
+
+          const newFileName = `${path
+            .dirname(file)
+            .split(path.sep)
+            .pop()}.scss`;
+
+          console.error( // eslint-disable-line
+            colors.grey(` ${line}:${column}`) +
+              '  ✖  '.red +
+              message.split(currentFileName).join(newFileName)
+          );
+        }
+      )
+    )
     .pipe($.postcss([postcssPresetEnv(), autoprefixer(), cssnano()]))
     .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest(getPaths().dist.assets))
@@ -145,12 +163,12 @@ gulp.task('scripts', function scripts() {
         return null;
       })
     )
-    .pipe($.concat('app.js'))
     .pipe(
       $.babel({
         presets: ['@babel/env'],
       })
     )
+    .pipe($.concat('app.js'))
     .pipe($.uglify())
     .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest(getPaths().dist.assets))
