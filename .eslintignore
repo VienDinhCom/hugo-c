@@ -1,4 +1,4 @@
-static
+build
 resources
 node_modules
-layouts/vendor
+src/layouts/vendor

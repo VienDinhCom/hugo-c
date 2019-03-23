@@ -14,8 +14,8 @@ const postcssCopyAssets = require('postcss-copy-assets');
 
 function getPaths() {
   const root = __dirname;
-  const src = path.join(root, 'layouts');
-  const dist = path.join(root, 'static/assets');
+  const src = path.join(root, 'src/layouts');
+  const dist = path.join(root, 'build');
 
   return {
     src: {
@@ -27,9 +27,9 @@ function getPaths() {
     },
     dist: {
       base: dist,
-      assets: dist,
-      images: path.join(dist, 'images'),
-      vendor: path.join(dist, 'vendor'),
+      assets: path.join(dist, 'assets'),
+      images: path.join(dist, 'assets/images'),
+      vendor: path.join(dist, 'assets/vendor'),
     },
   };
 }
