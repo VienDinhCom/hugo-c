@@ -1,15 +1,18 @@
 const fs = require('fs');
-const path = require('path');
+const del = require('del');
 const gulp = require('gulp');
+const path = require('path');
 const colors = require('colors');
+const hugo = require('hugo-bin');
 const cssnano = require('cssnano');
 const $ = require('gulp-load-plugins')();
+const postcssUrl = require('postcss-url');
 const browserSync = require('browser-sync');
 const autoprefixer = require('autoprefixer');
+const { spawn } = require('child_process');
 const bufferReplace = require('buffer-replace');
-const postcssPresetEnv = require('postcss-preset-env');
 const postcssImport = require('postcss-import');
-const postcssUrl = require('postcss-url');
+const postcssPresetEnv = require('postcss-preset-env');
 const postcssCopyAssets = require('postcss-copy-assets');
 
 function getPaths() {
@@ -22,13 +25,12 @@ function getPaths() {
       base: src,
       components: path.join(src, 'partials'),
       global: path.join(src, 'global'),
-      images: path.join(src, '../images/**/*'),
       vendor: path.join(src, 'vendor'),
     },
     dist: {
       base: dist,
       assets: path.join(dist, 'assets'),
-      images: path.join(dist, 'assets/images'),
+      app: path.join(dist, 'assets/app'),
       vendor: path.join(dist, 'assets/vendor'),
     },
   };
@@ -55,6 +57,21 @@ function getComponentPaths(ext) {
 
   return files;
 }
+
+gulp.task('hugo', function(callback) {
+  const args = ['-d', '../build', '-s', 'src'];
+
+  if (process.env.DEBUG) args.unshift('--debug');
+
+  spawn(hugo, args, { stdio: 'inherit' }).on('close', code => {
+    if (code === 0) {
+      browserSync.reload();
+      return callback();
+    }
+
+    return callback('Hugo build failed');
+  });
+});
 
 gulp.task('styles', function() {
   return gulp
@@ -140,8 +157,8 @@ gulp.task('styles', function() {
         }),
       ])
     )
-    .pipe($.sourcemaps.write('./maps'))
-    .pipe(gulp.dest(getPaths().dist.assets))
+    .pipe($.sourcemaps.write('.'))
+    .pipe(gulp.dest(getPaths().dist.app))
     .pipe(browserSync.stream());
 });
 
@@ -188,8 +205,8 @@ gulp.task('scripts', function scripts() {
     )
     .pipe($.concat('app.js'))
     .pipe($.uglify())
-    .pipe($.sourcemaps.write('./maps'))
-    .pipe(gulp.dest(getPaths().dist.assets))
+    .pipe($.sourcemaps.write('.'))
+    .pipe(gulp.dest(getPaths().dist.app))
     .on('end', function() {
       browserSync.reload();
     });
@@ -206,7 +223,7 @@ gulp.task('vendor-styles', function() {
         postcssImport(),
         postcssUrl({ url: 'rebase' }),
         postcssCopyAssets({
-          base: path.join(getPaths().dist.assets, 'vendor'),
+          base: path.join(getPaths().dist.assets, 'vendor/media'),
         }),
         autoprefixer(),
         cssnano({
@@ -221,8 +238,8 @@ gulp.task('vendor-styles', function() {
         }),
       ])
     )
-    .pipe($.sourcemaps.write('./maps'))
-    .pipe(gulp.dest(getPaths().dist.assets))
+    .pipe($.sourcemaps.write('.'))
+    .pipe(gulp.dest(getPaths().dist.vendor))
     .pipe(browserSync.stream());
 });
 
@@ -236,8 +253,8 @@ gulp.task('vendor-scripts', function() {
     .pipe($.sourcemaps.init())
     .pipe($.concat('vendor.js'))
     .pipe($.uglify())
-    .pipe($.sourcemaps.write('./maps'))
-    .pipe(gulp.dest(getPaths().dist.assets))
+    .pipe($.sourcemaps.write('.'))
+    .pipe(gulp.dest(getPaths().dist.vendor))
     .on('end', function() {
       browserSync.reload();
     });
@@ -245,30 +262,13 @@ gulp.task('vendor-scripts', function() {
 
 gulp.task('vendor', gulp.parallel('vendor-scripts', 'vendor-styles'));
 
-gulp.task('images', function images() {
-  return gulp
-    .src(getPaths().src.images)
-    .pipe(
-      $.cache(
-        $.imagemin({
-          progressive: true,
-          interlaced: true,
-        })
-      )
-    )
-    .pipe(gulp.dest(getPaths().dist.images))
-    .on('end', function() {
-      browserSync.reload();
-    });
-});
-
 gulp.task('clean', function() {
-  return gulp.src(`${getPaths().dist.base}/*`).pipe($.clean({ force: true }));
+  return del([getPaths().dist.base], { dot: true });
 });
 
 gulp.task(
   'build',
-  gulp.series('clean', gulp.parallel('scripts', 'styles', 'images', 'vendor'))
+  gulp.series('clean', gulp.parallel('hugo', 'vendor', 'styles', 'scripts'))
 );
 
 gulp.task('serve', function() {
@@ -283,8 +283,12 @@ gulp.task('serve', function() {
 
 gulp.task('watch', function() {
   $.watch(
-    [path.join(getPaths().src.base, 'images/**/*')],
-    gulp.parallel('images')
+    [
+      path.join(getPaths().src.base, '../content/**/*'),
+      path.join(getPaths().src.base, '../data/**/*'),
+      path.join(getPaths().src.base, '../static/**/*'),
+    ],
+    gulp.parallel('hugo')
   );
 
   $.watch(
@@ -315,6 +319,3 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', gulp.series('build', gulp.parallel('watch', 'serve')));
-
-// https://github.com/htanjo/css-bundling
-// https://parceljs.org/getting_started.html
