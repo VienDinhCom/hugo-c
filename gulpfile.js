@@ -17,15 +17,16 @@ const postcssCopyAssets = require('postcss-copy-assets');
 
 function getPaths() {
   const root = __dirname;
-  const src = path.join(root, 'src/layouts');
+  const src = path.join(root, 'src');
   const dist = path.join(root, 'build');
 
   return {
     src: {
       base: src,
-      components: path.join(src, 'partials'),
-      global: path.join(src, 'global'),
-      vendor: path.join(src, 'vendor'),
+      layouts: path.join(src, 'layouts'),
+      components: path.join(src, 'layouts/partials'),
+      global: path.join(src, 'layouts/global'),
+      vendor: path.join(src, 'layouts/vendor'),
     },
     dist: {
       base: dist,
@@ -38,7 +39,7 @@ function getPaths() {
 
 function getComponentPaths(ext) {
   const { components } = getPaths().src;
-  const globalFile = path.join(getPaths().src.base, `global/global${ext}`);
+  const globalFile = path.join(getPaths().src.layouts, `global/global${ext}`);
   const files = fs
     .readdirSync(components)
     .filter(function(component) {
@@ -284,26 +285,26 @@ gulp.task('serve', function() {
 gulp.task('watch', function() {
   $.watch(
     [
-      path.join(getPaths().src.base, '../content/**/*'),
-      path.join(getPaths().src.base, '../data/**/*'),
-      path.join(getPaths().src.base, '../static/**/*'),
+      path.join(getPaths().src.base, 'content/**/*'),
+      path.join(getPaths().src.base, 'data/**/*'),
+      path.join(getPaths().src.base, 'static/**/*'),
     ],
     gulp.parallel('hugo')
   );
 
   $.watch(
-    [path.join(getPaths().src.base, 'vendor/**/*.{scss,css}')],
+    [path.join(getPaths().src.layouts, 'vendor/**/*.{scss,css}')],
     gulp.parallel('vendor-styles')
   );
 
   $.watch(
-    [path.join(getPaths().src.base, 'vendor/**/*.js')],
+    [path.join(getPaths().src.layouts, 'vendor/**/*.js')],
     gulp.parallel('vendor-scripts')
   );
 
   $.watch(
     [
-      path.join(getPaths().src.base, 'global/**/*.scss'),
+      path.join(getPaths().src.layouts, 'global/**/*.scss'),
       path.join(getPaths().src.components, '**/*.scss'),
     ],
     gulp.parallel('styles')
@@ -311,7 +312,7 @@ gulp.task('watch', function() {
 
   $.watch(
     [
-      path.join(getPaths().src.base, 'global/**/*.js'),
+      path.join(getPaths().src.layouts, 'global/**/*.js'),
       path.join(getPaths().src.components, '**/*.js'),
     ],
     gulp.parallel('scripts')
