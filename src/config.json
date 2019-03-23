@@ -1,0 +1,6 @@
+{
+  "title": "Hugo Component-based Website",
+  "baseurl": "/",
+  "publishDir": "../build",
+  "resourceDir": "../resources"
+}
