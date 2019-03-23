@@ -22,7 +22,7 @@ function getPaths() {
       base: src,
       components: path.join(src, 'partials'),
       global: path.join(src, 'global'),
-      images: path.join(src, 'images/**/*'),
+      images: path.join(src, '../images/**/*'),
       vendor: path.join(src, 'vendor'),
     },
     dist: {
