@@ -3,11 +3,14 @@ const path = require('path');
 const gulp = require('gulp');
 const colors = require('colors');
 const cssnano = require('cssnano');
-const autoprefixer = require('autoprefixer');
 const $ = require('gulp-load-plugins')();
 const browserSync = require('browser-sync');
+const autoprefixer = require('autoprefixer');
 const bufferReplace = require('buffer-replace');
 const postcssPresetEnv = require('postcss-preset-env');
+const postcssImport = require('postcss-import');
+const postcssUrl = require('postcss-url');
+const postcssCopyAssets = require('postcss-copy-assets');
 
 function getPaths() {
   const root = __dirname;
@@ -20,7 +23,7 @@ function getPaths() {
       components: path.join(src, 'partials'),
       global: path.join(src, 'global'),
       images: path.join(src, 'images/**/*'),
-      vendor: path.join(src, 'vendor/**/*'),
+      vendor: path.join(src, 'vendor'),
     },
     dist: {
       base: dist,
@@ -121,8 +124,23 @@ gulp.task('styles', function() {
         }
       )
     )
-    .pipe($.postcss([postcssPresetEnv(), autoprefixer(), cssnano()]))
-    .pipe($.sourcemaps.write('.'))
+    .pipe(
+      $.postcss([
+        postcssPresetEnv(),
+        autoprefixer(),
+        cssnano({
+          preset: [
+            'default',
+            {
+              discardComments: {
+                removeAll: true,
+              },
+            },
+          ],
+        }),
+      ])
+    )
+    .pipe($.sourcemaps.write('./maps'))
     .pipe(gulp.dest(getPaths().dist.assets))
     .pipe(browserSync.stream());
 });
@@ -170,12 +188,62 @@ gulp.task('scripts', function scripts() {
     )
     .pipe($.concat('app.js'))
     .pipe($.uglify())
-    .pipe($.sourcemaps.write('.'))
+    .pipe($.sourcemaps.write('./maps'))
     .pipe(gulp.dest(getPaths().dist.assets))
     .on('end', function() {
       browserSync.reload();
     });
 });
+
+gulp.task('vendor-styles', function() {
+  return gulp
+    .src(path.join(getPaths().src.vendor, 'vendor.scss'))
+    .pipe($.sourcemaps.init())
+    .pipe($.sass({ outputStyle: 'expanded' }))
+    .pipe(
+      $.postcss([
+        postcssPresetEnv(),
+        postcssImport(),
+        postcssUrl({ url: 'rebase' }),
+        postcssCopyAssets({
+          base: path.join(getPaths().dist.assets, 'vendor'),
+        }),
+        autoprefixer(),
+        cssnano({
+          preset: [
+            'default',
+            {
+              discardComments: {
+                removeAll: true,
+              },
+            },
+          ],
+        }),
+      ])
+    )
+    .pipe($.sourcemaps.write('./maps'))
+    .pipe(gulp.dest(getPaths().dist.assets))
+    .pipe(browserSync.stream());
+});
+
+gulp.task('vendor-scripts', function() {
+  const scripts = require(path.join(getPaths().src.vendor, 'vendor.js')).map( // eslint-disable-line
+    script => path.join(getPaths().src.vendor, script)
+  );
+
+  return gulp
+    .src(scripts)
+    .pipe($.sourcemaps.init())
+    .pipe($.concat('vendor.js'))
+    .pipe($.uglify())
+    .pipe($.sourcemaps.write('./maps'))
+    .pipe(gulp.dest(getPaths().dist.assets))
+    .on('end', function() {
+      browserSync.reload();
+    });
+});
+
+gulp.task('vendor', gulp.parallel('vendor-scripts', 'vendor-styles'));
 
 gulp.task('images', function images() {
   return gulp
@@ -194,15 +262,6 @@ gulp.task('images', function images() {
     });
 });
 
-gulp.task('vendor', function() {
-  return gulp
-    .src(getPaths().src.vendor)
-    .pipe(gulp.dest(getPaths().dist.vendor))
-    .on('end', function() {
-      browserSync.reload();
-    });
-});
-
 gulp.task('clean', function() {
   return gulp.src(`${getPaths().dist.base}/*`).pipe($.clean({ force: true }));
 });
@@ -215,10 +274,7 @@ gulp.task(
 gulp.task('serve', function() {
   browserSync({
     notify: false,
-    logPrefix: ` ${'neivxam/moc.buhtig//:sptth'
-      .split('')
-      .reverse()
-      .join('')} `,
+    logPrefix: ` https://github.com/maxvien `,
     server: getPaths().dist.base,
     open: false,
     port: 8080,
@@ -232,8 +288,13 @@ gulp.task('watch', function() {
   );
 
   $.watch(
-    [path.join(getPaths().src.base, 'vendor/**/*')],
-    gulp.parallel('vendor')
+    [path.join(getPaths().src.base, 'vendor/**/*.{scss,css}')],
+    gulp.parallel('vendor-styles')
+  );
+
+  $.watch(
+    [path.join(getPaths().src.base, 'vendor/**/*.js')],
+    gulp.parallel('vendor-scripts')
   );
 
   $.watch(
