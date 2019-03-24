@@ -15,6 +15,8 @@ const postcssImport = require('postcss-import');
 const postcssPresetEnv = require('postcss-preset-env');
 const postcssCopyAssets = require('postcss-copy-assets');
 
+const isProd = process.env.NODE_ENV === 'production';
+
 function getPaths() {
   const root = __dirname;
   const src = path.join(root, 'src');
@@ -63,6 +65,7 @@ gulp.task('hugo', function(callback) {
   const args = ['-d', '../build', '-s', 'src'];
 
   if (process.env.DEBUG) args.unshift('--debug');
+  if (isProd) args.unshift('--minify');
 
   spawn(hugo, args, { stdio: 'inherit' }).on('close', code => {
     if (code === 0) {
@@ -143,20 +146,23 @@ gulp.task('styles', function() {
       )
     )
     .pipe(
-      $.postcss([
-        postcssPresetEnv(),
-        autoprefixer(),
-        cssnano({
-          preset: [
-            'default',
-            {
-              discardComments: {
-                removeAll: true,
+      $.if(
+        isProd,
+        $.postcss([
+          postcssPresetEnv(),
+          autoprefixer(),
+          cssnano({
+            preset: [
+              'default',
+              {
+                discardComments: {
+                  removeAll: true,
+                },
               },
-            },
-          ],
-        }),
-      ])
+            ],
+          }),
+        ])
+      )
     )
     .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest(getPaths().dist.app))
@@ -201,11 +207,12 @@ gulp.task('scripts', function scripts() {
     )
     .pipe(
       $.babel({
+        sourceType: 'script',
         presets: ['@babel/env'],
       })
     )
-    .pipe($.concat('app.js'))
-    .pipe($.uglify())
+    .pipe($.concat('app.js', { newLine: '\n\n' }))
+    .pipe($.if(isProd, $.uglify()))
     .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest(getPaths().dist.app))
     .on('end', function() {

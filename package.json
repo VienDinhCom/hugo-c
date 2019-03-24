@@ -1,21 +1,23 @@
 {
   "name": "hugo-c",
   "version": "1.0.0",
+  "description": "",
   "author": {
     "name": "Vien Dinh",
     "email": "maxvien@gmail.com",
     "url": "https://github.com/maxvien"
   },
+  "keywords": [],
   "license": "MIT",
   "scripts": {
     "start": "gulp",
     "build": "gulp build",
-    "lint:js": "eslint layouts",
-    "lint:js:fix": "eslint layouts --fix",
-    "lint:scss": "stylelint layouts",
-    "lint:scss:fix": "stylelint layouts --fix",
-    "lint:html": "java -jar node_modules/vnu-jar/build/dist/vnu.jar --skip-non-html --errors-only dist",
-    "lint:html:full": "java -jar node_modules/vnu-jar/build/dist/vnu.jar --skip-non-html dist"
+    "lint:js": "eslint src/layouts",
+    "lint:js:fix": "eslint src/layouts --fix",
+    "lint:scss": "stylelint src/layouts",
+    "lint:scss:fix": "stylelint src/layouts --fix",
+    "lint:html": "java -jar node_modules/vnu-jar/build/dist/vnu.jar --skip-non-html --errors-only build",
+    "lint:html:full": "java -jar node_modules/vnu-jar/build/dist/vnu.jar --skip-non-html build"
   },
   "browserslist": [
     ">0.2%",
@@ -30,7 +32,6 @@
     "browser-sync": "^2.26.3",
     "buffer-replace": "^1.0.0",
     "colors": "^1.3.3",
-    "concurrently": "^4.1.0",
     "cssnano": "^4.1.10",
     "del": "^4.0.0",
     "eslint": "^5.15.1",
@@ -62,5 +63,12 @@
     "stylelint-scss": "^3.5.4",
     "vnu-jar": "latest",
     "yarn": "^1.13.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Maxvien/hugo-c.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Maxvien/hugo-c/issues"
   }
 }

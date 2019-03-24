@@ -3,3 +3,5 @@
 + Testing
   - static/app
   - static/vendor
+  - Windows
++ Minify when Production: HTML/CSS/JS
