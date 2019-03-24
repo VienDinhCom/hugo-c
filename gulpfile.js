@@ -16,6 +16,7 @@ const postcssPresetEnv = require('postcss-preset-env');
 const postcssCopyAssets = require('postcss-copy-assets');
 
 const isProd = process.env.NODE_ENV === 'production';
+const isTest = process.env.NODE_ENV === 'test';
 
 function getPaths() {
   const root = __dirname;
@@ -23,6 +24,7 @@ function getPaths() {
   const dist = path.join(root, 'build');
 
   return {
+    root,
     src: {
       base: src,
       layouts: path.join(src, 'layouts'),
@@ -37,6 +39,28 @@ function getPaths() {
       vendor: path.join(dist, 'assets/vendor'),
     },
   };
+}
+
+function logErrors(filePath, messages) {
+  if (!Array.isArray(messages)) {
+    throw new Error('Messages must be an array.');
+  }
+
+  if (messages.length) {
+    const newFilePath = filePath.replace(`${getPaths().root}`, '').slice(1);
+
+    console.log(newFilePath.underline); // eslint-disable-line
+
+    messages.forEach(function({ severity, line, column, message }) {
+      console.log( // eslint-disable-line
+        ` ${colors.grey(`${line}:${column}`)} ${
+          ' ✖ '[severity === 2 ? 'red' : 'green']
+        } ${message}`
+      );
+    });
+
+    console.log('\n'); // eslint-disable-line
+  }
 }
 
 function getPartialFilePaths(ext) {
@@ -107,11 +131,16 @@ gulp.task('styles', function() {
         }
 
         if (styleFile.contents.toString().indexOf(':host') !== 0) {
-          console.log('\n' + styleFile.path.underline); // eslint-disable-line
-          console.log( // eslint-disable-line
-            `${colors.grey(' 1:1') +
-              '  ✖  '.red}Missing the ':host' selector at the first line.`
-          );
+          logErrors(styleFile.path, [
+            {
+              severity: 2,
+              line: 1,
+              column: 1,
+              message: `Missing the ':host' selector at the first line.`,
+            },
+          ]);
+
+          if (isTest || isProd) process.exit(1);
 
           return null;
         }
@@ -125,23 +154,34 @@ gulp.task('styles', function() {
         return null;
       })
     )
+    .pipe(
+      $.stylelint({
+        failAfterError: isTest || isProd,
+        fix: true,
+        reporters: [{ formatter: 'string', console: true }],
+        syntax: 'scss',
+      })
+    )
     .pipe($.concat('app.css', { newLine: '\n' }))
     .pipe(
       $.sass({ outputStyle: 'expanded' }).on(
         'error',
         ({ file, line, column, message }) => {
-          const currentFileName = path.basename(file);
-
-          const newFileName = `${path
+          const fileName = `${path
             .dirname(file)
             .split(path.sep)
             .pop()}.scss`;
 
-          console.error( // eslint-disable-line
-            colors.grey(` ${line}:${column}`) +
-              '  ✖  '.red +
-              message.split(currentFileName).join(newFileName)
-          );
+          const filePath = file.split('app.css').join(fileName);
+
+          logErrors(filePath, [
+            {
+              severity: 2,
+              line,
+              column,
+              message,
+            },
+          ]);
         }
       )
     )
@@ -205,6 +245,11 @@ gulp.task('scripts', function scripts() {
         return null;
       })
     )
+    .pipe($.eslint({ fix: true }))
+    .pipe(
+      $.eslint.result(({ filePath, messages }) => logErrors(filePath, messages))
+    )
+    .pipe($.if(isTest || isProd, $.eslint.failAfterError()))
     .pipe(
       $.babel({
         sourceType: 'script',
@@ -290,7 +335,7 @@ gulp.task('serve', function() {
 });
 
 gulp.task('watch', function() {
-  $.watch(
+  gulp.watch(
     [
       path.join(getPaths().src.base, 'content/**/*'),
       path.join(getPaths().src.base, 'data/**/*'),
@@ -299,17 +344,17 @@ gulp.task('watch', function() {
     gulp.parallel('hugo')
   );
 
-  $.watch(
+  gulp.watch(
     [path.join(getPaths().src.layouts, 'vendor/**/*.{scss,css}')],
     gulp.parallel('vendor-styles')
   );
 
-  $.watch(
+  gulp.watch(
     [path.join(getPaths().src.layouts, 'vendor/**/*.js')],
     gulp.parallel('vendor-scripts')
   );
 
-  $.watch(
+  gulp.watch(
     [
       path.join(getPaths().src.layouts, 'global/**/*.scss'),
       path.join(getPaths().src.partials, '**/*.scss'),
@@ -317,13 +362,54 @@ gulp.task('watch', function() {
     gulp.parallel('styles')
   );
 
-  $.watch(
+  gulp.watch(
     [
       path.join(getPaths().src.layouts, 'global/**/*.js'),
       path.join(getPaths().src.partials, '**/*.js'),
     ],
     gulp.parallel('scripts')
   );
+});
+
+gulp.task('test', function() {
+  gulp
+    .watch([
+      path.join(getPaths().dist.base, '**/*.{html,htm}'),
+      path.join(getPaths().src.layouts, 'global/**/*.scss'),
+      path.join(getPaths().src.partials, '**/*.scss'),
+      path.join(getPaths().src.layouts, 'global/**/*.js'),
+      path.join(getPaths().src.partials, '**/*.js'),
+    ])
+    .on('change', function(file) {
+      switch (path.extname(file)) {
+        case '.js':
+          gulp
+            .src(file)
+            .pipe($.eslint())
+            .pipe(
+              $.eslint.result(result => {
+                if (result.messages.length) {
+                  console.log('\n' + result.filePath.underline); // eslint-disable-line
+                  result.messages.forEach(function({
+                    severity,
+                    line,
+                    column,
+                    message,
+                  }) {
+                    console.log( // eslint-disable-line
+                      `${colors.grey(` ${line}:${column}`) +
+                        '  ✖  '[severity === 2 ? 'red' : 'green']}${message}`
+                    );
+                  });
+                }
+              })
+            );
+          break;
+
+        default:
+          break;
+      }
+    });
 });
 
 gulp.task('default', gulp.series('build', gulp.parallel('watch', 'serve')));

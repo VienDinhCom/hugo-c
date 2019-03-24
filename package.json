@@ -12,6 +12,7 @@
   "scripts": {
     "start": "NODE_ENV=development gulp",
     "build": "NODE_ENV=production gulp build",
+    "test": "NODE_ENV=test gulp build",
     "lint:js": "eslint src/layouts",
     "lint:js:fix": "eslint src/layouts --fix",
     "lint:scss": "stylelint src/layouts",
@@ -49,9 +50,9 @@
     "gulp-postcss": "^8.0.0",
     "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.5",
+    "gulp-stylelint": "^8.0.0",
     "gulp-tap": "^1.0.1",
     "gulp-uglify": "^3.0.2",
-    "gulp-watch": "^5.0.1",
     "hugo-bin": "^0.42.0",
     "postcss-copy-assets": "^0.3.1",
     "postcss-import": "^12.0.1",
@@ -61,8 +62,7 @@
     "stylelint": "^9.10.1",
     "stylelint-config-recommended-scss": "^3.2.0",
     "stylelint-scss": "^3.5.4",
-    "vnu-jar": "latest",
-    "yarn": "^1.13.0"
+    "vnu-jar": "latest"
   },
   "repository": {
     "type": "git",
