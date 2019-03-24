@@ -13,10 +13,6 @@
     "start": "NODE_ENV=development gulp",
     "build": "NODE_ENV=production gulp build",
     "test": "NODE_ENV=test gulp build",
-    "lint:js": "eslint src/layouts",
-    "lint:js:fix": "eslint src/layouts --fix",
-    "lint:scss": "stylelint src/layouts",
-    "lint:scss:fix": "stylelint src/layouts --fix",
     "lint:html": "java -jar node_modules/vnu-jar/build/dist/vnu.jar --skip-non-html --errors-only build",
     "lint:html:full": "java -jar node_modules/vnu-jar/build/dist/vnu.jar --skip-non-html build"
   },

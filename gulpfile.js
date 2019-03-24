@@ -9,7 +9,7 @@ const $ = require('gulp-load-plugins')();
 const postcssUrl = require('postcss-url');
 const browserSync = require('browser-sync');
 const autoprefixer = require('autoprefixer');
-const { spawn } = require('child_process');
+const { execFile } = require('child_process');
 const bufferReplace = require('buffer-replace');
 const postcssImport = require('postcss-import');
 const postcssPresetEnv = require('postcss-preset-env');
@@ -47,9 +47,10 @@ function logErrors(filePath, messages) {
   }
 
   if (messages.length) {
-    const newFilePath = filePath.replace(`${getPaths().root}`, '').slice(1);
-
-    console.log(newFilePath.underline); // eslint-disable-line
+    if (filePath) {
+      const newFilePath = filePath.replace(`${getPaths().root}`, '').slice(1);
+      console.log(newFilePath.underline); // eslint-disable-line
+    }
 
     messages.forEach(function({ severity, line, column, message }) {
       console.log( // eslint-disable-line
@@ -86,18 +87,19 @@ function getPartialFilePaths(ext) {
 }
 
 gulp.task('hugo', function(callback) {
-  const args = ['-d', '../build', '-s', 'src'];
+  const args = ['-s', 'src'];
 
   if (process.env.DEBUG) args.unshift('--debug');
   if (isProd) args.unshift('--minify');
 
-  spawn(hugo, args, { stdio: 'inherit' }).on('close', code => {
-    if (code === 0) {
-      browserSync.reload();
+  execFile(hugo, args, (err, stdout) => {
+    if (err) {
+      console.log(` ${colors.grey(`HUGO`)}${' ✖ '.red} ${err}`); // eslint-disable-line
+      if (isTest || isProd) process.exit(1);
       return callback();
     }
 
-    return callback('Hugo build failed');
+    return callback(null, stdout);
   });
 });
 
@@ -339,6 +341,7 @@ gulp.task('watch', function() {
     [
       path.join(getPaths().src.base, 'content/**/*'),
       path.join(getPaths().src.base, 'data/**/*'),
+      path.join(getPaths().src.base, 'layouts/**/*.{html,htm}'),
       path.join(getPaths().src.base, 'static/**/*'),
     ],
     gulp.parallel('hugo')
