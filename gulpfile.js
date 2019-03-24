@@ -15,8 +15,8 @@ const postcssImport = require('postcss-import');
 const postcssPresetEnv = require('postcss-preset-env');
 const postcssCopyAssets = require('postcss-copy-assets');
 
-const isProd = process.env.NODE_ENV === 'production';
 const isTest = process.env.NODE_ENV === 'test';
+const isProd = process.env.NODE_ENV === 'production';
 
 function getPaths() {
   const root = __dirname;
@@ -47,10 +47,8 @@ function logErrors(filePath, messages) {
   }
 
   if (messages.length) {
-    if (filePath) {
-      const newFilePath = filePath.replace(`${getPaths().root}`, '').slice(1);
-      console.log(newFilePath.underline); // eslint-disable-line
-    }
+    const newFilePath = filePath.replace(`${getPaths().root}`, '').slice(1);
+    console.log(newFilePath.underline); // eslint-disable-line
 
     messages.forEach(function({ severity, line, column, message }) {
       console.log( // eslint-disable-line
@@ -372,47 +370,6 @@ gulp.task('watch', function() {
     ],
     gulp.parallel('scripts')
   );
-});
-
-gulp.task('test', function() {
-  gulp
-    .watch([
-      path.join(getPaths().dist.base, '**/*.{html,htm}'),
-      path.join(getPaths().src.layouts, 'global/**/*.scss'),
-      path.join(getPaths().src.partials, '**/*.scss'),
-      path.join(getPaths().src.layouts, 'global/**/*.js'),
-      path.join(getPaths().src.partials, '**/*.js'),
-    ])
-    .on('change', function(file) {
-      switch (path.extname(file)) {
-        case '.js':
-          gulp
-            .src(file)
-            .pipe($.eslint())
-            .pipe(
-              $.eslint.result(result => {
-                if (result.messages.length) {
-                  console.log('\n' + result.filePath.underline); // eslint-disable-line
-                  result.messages.forEach(function({
-                    severity,
-                    line,
-                    column,
-                    message,
-                  }) {
-                    console.log( // eslint-disable-line
-                      `${colors.grey(` ${line}:${column}`) +
-                        '  ✖  '[severity === 2 ? 'red' : 'green']}${message}`
-                    );
-                  });
-                }
-              })
-            );
-          break;
-
-        default:
-          break;
-      }
-    });
 });
 
 gulp.task('default', gulp.series('build', gulp.parallel('watch', 'serve')));
