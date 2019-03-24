@@ -26,7 +26,7 @@ function getPaths() {
     src: {
       base: src,
       layouts: path.join(src, 'layouts'),
-      components: path.join(src, 'layouts/partials'),
+      partials: path.join(src, 'layouts/partials'),
       global: path.join(src, 'layouts/global'),
       vendor: path.join(src, 'layouts/vendor'),
     },
@@ -39,16 +39,16 @@ function getPaths() {
   };
 }
 
-function getComponentPaths(ext) {
-  const { components } = getPaths().src;
+function getPartialFilePaths(ext) {
+  const { partials } = getPaths().src;
   const globalFile = path.join(getPaths().src.layouts, `global/global${ext}`);
   const files = fs
-    .readdirSync(components)
-    .filter(function(component) {
-      return fs.lstatSync(path.join(components, component)).isDirectory();
+    .readdirSync(partials)
+    .filter(function(partial) {
+      return fs.lstatSync(path.join(partials, partial)).isDirectory();
     })
-    .map(function(component) {
-      return path.join(components, component, component + ext);
+    .map(function(partial) {
+      return path.join(partials, partial, partial + ext);
     })
     .filter(function(file) {
       return fs.existsSync(file) && fs.lstatSync(file).isFile();
@@ -79,13 +79,13 @@ gulp.task('hugo', function(callback) {
 
 gulp.task('styles', function() {
   return gulp
-    .src(getComponentPaths('.scss'))
+    .src(getPartialFilePaths('.scss'))
     .pipe($.sourcemaps.init())
     .pipe(
       $.tap(function(styleFile) {
-        const component = path.basename(styleFile.path).replace('.scss', '');
+        const partial = path.basename(styleFile.path).replace('.scss', '');
 
-        if (component === 'global') {
+        if (partial === 'global') {
           return styleFile.contents
             .toString()
             .split(';')
@@ -119,7 +119,7 @@ gulp.task('styles', function() {
         styleFile.contents = bufferReplace( // eslint-disable-line
           Buffer.from(styleFile.contents),
           ':host',
-          `/* Component: .${component}\n--------------------------------------------------*/\n.${component}`
+          `/* Partial: .${partial}\n--------------------------------------------------*/\n.${partial}`
         );
 
         return null;
@@ -171,7 +171,7 @@ gulp.task('styles', function() {
 
 gulp.task('scripts', function scripts() {
   return gulp
-    .src(getComponentPaths('.js'))
+    .src(getPartialFilePaths('.js'))
     .pipe($.sourcemaps.init())
     .pipe(
       $.if(function(file) {
@@ -182,7 +182,7 @@ gulp.task('scripts', function scripts() {
       $.if(function(file) {
         return path.basename(file.path) !== 'global.js';
       }, $.insert.prepend(
-        '/* Component: :host\n--------------------------------------------------*/\n'
+        '/* Partial: :host\n--------------------------------------------------*/\n'
       ))
     )
     .pipe(
@@ -192,14 +192,14 @@ gulp.task('scripts', function scripts() {
     )
     .pipe(
       $.tap(function(scriptFile) {
-        const component = path.basename(scriptFile.path).replace('.js', '');
+        const partial = path.basename(scriptFile.path).replace('.js', '');
 
-        if (component === 'global') return null;
+        if (partial === 'global') return null;
 
         scriptFile.contents = bufferReplace( // eslint-disable-line
           Buffer.from(scriptFile.contents),
           ':host',
-          `.${component}`
+          `.${partial}`
         );
 
         return null;
@@ -312,7 +312,7 @@ gulp.task('watch', function() {
   $.watch(
     [
       path.join(getPaths().src.layouts, 'global/**/*.scss'),
-      path.join(getPaths().src.components, '**/*.scss'),
+      path.join(getPaths().src.partials, '**/*.scss'),
     ],
     gulp.parallel('styles')
   );
@@ -320,7 +320,7 @@ gulp.task('watch', function() {
   $.watch(
     [
       path.join(getPaths().src.layouts, 'global/**/*.js'),
-      path.join(getPaths().src.components, '**/*.js'),
+      path.join(getPaths().src.partials, '**/*.js'),
     ],
     gulp.parallel('scripts')
   );

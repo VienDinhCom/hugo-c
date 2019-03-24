@@ -10,8 +10,8 @@
   "keywords": [],
   "license": "MIT",
   "scripts": {
-    "start": "gulp",
-    "build": "gulp build",
+    "start": "NODE_ENV=development gulp",
+    "build": "NODE_ENV=production gulp build",
     "lint:js": "eslint src/layouts",
     "lint:js:fix": "eslint src/layouts --fix",
     "lint:scss": "stylelint src/layouts",
@@ -66,9 +66,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Maxvien/hugo-c.git"
+    "url": "git+https://github.com/maxvien/hugo-c.git"
   },
   "bugs": {
-    "url": "https://github.com/Maxvien/hugo-c/issues"
+    "url": "https://github.com/maxvien/hugo-c/issues"
   }
 }
