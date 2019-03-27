@@ -17,7 +17,7 @@ const postcssCopyAssets = require('postcss-copy-assets');
 
 const isTest = process.env.NODE_ENV === 'test';
 const isProd = process.env.NODE_ENV === 'production';
-const publish = isTest ? 'test' : 'build';
+const publish = 'build';
 
 function getPaths() {
   const root = __dirname;
