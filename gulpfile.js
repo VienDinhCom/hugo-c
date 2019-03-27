@@ -17,11 +17,12 @@ const postcssCopyAssets = require('postcss-copy-assets');
 
 const isTest = process.env.NODE_ENV === 'test';
 const isProd = process.env.NODE_ENV === 'production';
+const publish = isTest ? 'test' : 'build';
 
 function getPaths() {
   const root = __dirname;
   const src = path.join(root, 'src');
-  const dist = path.join(root, isTest ? 'test' : 'build');
+  const dist = path.join(root, publish);
 
   return {
     root,
@@ -112,7 +113,7 @@ function checkPartialNames() {
 }
 
 gulp.task('hugo', function(callback) {
-  const args = ['-s', 'src'];
+  const args = ['-d', `../${publish}`, '-s', 'src'];
 
   checkPartialNames();
 
