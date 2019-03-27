@@ -84,24 +84,56 @@ function getPartialFilePaths(ext) {
   return files;
 }
 
+function checkPartialNames() {
+  const prefix = 'app-';
+  const partialDir = getPaths().src.partials;
+
+  const errorPartials = fs
+    .readdirSync(partialDir)
+    .filter(
+      partial =>
+        fs.lstatSync(path.join(partialDir, partial)).isDirectory() &&
+        !partial.startsWith(prefix)
+    )
+    .map(partial => ` ${partial}`);
+
+  const errorLength = errorPartials.length;
+
+  if (errorLength) {
+    console.log( // eslint-disable-line
+      `\n ${colors.grey(`ERROR`)} ${' ✖ '.red} The name of ${
+        errorLength > 1 ? 'these' : 'this'
+      } partial${
+        errorLength > 1 ? 's' : ''
+      } [${errorPartials} ] must start with app-[name].\n`
+    );
+    if (isTest || isProd) process.exit(1);
+  }
+}
+
 gulp.task('hugo', function(callback) {
   const args = ['-s', 'src'];
+
+  checkPartialNames();
 
   if (process.env.DEBUG) args.unshift('--debug');
   if (isProd) args.unshift('--minify');
 
   execFile(hugo, args, (err, stdout) => {
     if (err) {
-      console.log(` ${colors.grey(`HUGO`)}${' ✖ '.red} ${err}`); // eslint-disable-line
+      console.log(` ${colors.grey(`ERROR`)} ${' ✖ '.red} ${err}`); // eslint-disable-line
       if (isTest || isProd) process.exit(1);
       return callback();
     }
 
+    browserSync.reload();
     return callback(null, stdout);
   });
 });
 
 gulp.task('styles', function() {
+  checkPartialNames();
+
   return gulp
     .src(getPartialFilePaths('.scss'))
     .pipe($.sourcemaps.init())
@@ -210,6 +242,8 @@ gulp.task('styles', function() {
 });
 
 gulp.task('scripts', function scripts() {
+  checkPartialNames();
+
   return gulp
     .src(getPartialFilePaths('.js'))
     .pipe($.sourcemaps.init())
