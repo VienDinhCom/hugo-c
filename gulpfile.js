@@ -15,9 +15,9 @@ const postcssImport = require('postcss-import');
 const postcssPresetEnv = require('postcss-preset-env');
 const postcssCopyAssets = require('postcss-copy-assets');
 
+const publish = 'build';
 const isTest = process.env.NODE_ENV === 'test';
 const isProd = process.env.NODE_ENV === 'production';
-const publish = 'build';
 
 function getPaths() {
   const root = __dirname;
