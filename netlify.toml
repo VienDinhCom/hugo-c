@@ -1,0 +1,10 @@
+[build.environment]
+  YARN_VERSION = "1.12.3"
+
+[build]
+  command = "yarn build"
+  publish = "build"
+
+[context.deploy-preview]
+  command = "yarn test"
+  publish = "test"

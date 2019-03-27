@@ -21,7 +21,7 @@ const isProd = process.env.NODE_ENV === 'production';
 function getPaths() {
   const root = __dirname;
   const src = path.join(root, 'src');
-  const dist = path.join(root, 'build');
+  const dist = path.join(root, isTest ? 'test' : 'build');
 
   return {
     root,
@@ -117,7 +117,13 @@ gulp.task('hugo', function(callback) {
   checkPartialNames();
 
   if (process.env.DEBUG) args.unshift('--debug');
-  if (isProd) args.unshift('--minify');
+
+  if (isProd) {
+    args.unshift('--minify');
+  } else {
+    args.unshift('--buildDrafts');
+    args.unshift('--buildFuture');
+  }
 
   execFile(hugo, args, (err, stdout) => {
     if (err) {
