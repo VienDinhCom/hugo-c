@@ -6,11 +6,14 @@
 * For **shortcodes** and **[content type]/[layout.html]**, you must include partials to render the template in HTML.
 
 ### Global Rules
-The **global** folder is only for:
-* Importing SCSS mixins.
-* Importing SCSS variables.
-* Defining global SCSS variables for the partials.
-* Defining global JS constants, variables for the partials.
+* The `src/layouts/global/global.scss` file is only for:
+  * Defining global SCSS variables for the partials.
+  * Importing functions, mixins and variables from **vendor** folder.
+  * Writing global code for all pages and patials. However, be careful!
+
+* The `src/layouts/global/global.scss` file is only for:
+  * Defining global JS constants, variables for the partials.
+  * Writing global code for all pages and patials. However, be careful!
 
 ### Partial Rules
 Only code HTML, SCSS, JS in the **partials/app-[partial name]** folders.
