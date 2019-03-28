@@ -16,7 +16,7 @@
   * Writing global code for all partials and pages. However, be careful!
 
 ### Partial Rules
-Only code HTML, SCSS, JS in the **partials/app-[partial name]** folders.
+Only code HTML, SCSS, JS in the `src/layouts/partials/app-[partial name]` folders.
 
 * For **app-[partial name].html**
 
