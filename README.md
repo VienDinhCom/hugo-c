@@ -2,7 +2,7 @@
 
 ## Rules
 
-* Do not code **HTML**, SCSS, JS in the **global**, **shortcodes**, **[content type]/[layout.html]** folders.
+* Do not code **HTML**, SCSS, JS in the **global**, **shortcodes**, **[type]/[layout]** folders.
 * Only code HTML, SCSS, JS in the **partials/app-[partial name]** folders.
 * The **global** folder is only for:
   * Importing SCSS variables.
