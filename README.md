@@ -11,13 +11,15 @@
   * Importing functions, mixins and variables from **vendor** folder.
   * Writing global code for all partials and pages. However, be careful!
 
-* The `src/layouts/global/global.scss` file is only for:
-  * Defining global JS constants, variables for the partials.
+* The `src/layouts/global/global.js` file is only for:
+  * Defining global JavaScript constants, variables for the partials.
   * Writing global code for all partials and pages. However, be careful!
 
 ### Partial Rules
 Only code HTML, SCSS, JS in the **partials/app-[partial name]** folders.
 
-#### For **app-[partial name].html**
-#### For **app-[partial name].scss**
-#### For **app-[partial name].js**
+* For **app-[partial name].html**
+
+* For **app-[partial name].scss**
+
+* For **app-[partial name].js**
