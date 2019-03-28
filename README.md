@@ -43,5 +43,5 @@ You can use this Emmet shortcut `section.app-post-single|c` and press `tab` to c
 ```
   const partial = this;
   
-  $(partial).find('button').click(() => $(partial).css('color', 'blue'););
+  $(partial).find('button').click(() => $(partial).css('color', 'blue'));
 ```
