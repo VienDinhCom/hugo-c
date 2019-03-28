@@ -18,7 +18,13 @@
 ### Partial Rules
 Only code HTML, SCSS, JS in the `src/layouts/partials/app-[partial name]` folders.
 
-* For `app-[partial name].html`
+* For `app-[partial name].html`, the HTML files should have comments likes this.
+```
+<section class="app-post-single">
+    {{- .Content -}}
+</section>
+<!-- /.app-post-single -->
+```
 
 * For `app-[partial name].scss`
 
