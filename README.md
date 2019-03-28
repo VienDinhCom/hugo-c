@@ -9,11 +9,11 @@
 * The `src/layouts/global/global.scss` file is only for:
   * Defining global SCSS variables for the partials.
   * Importing functions, mixins and variables from **vendor** folder.
-  * Writing global code for all pages and patials. However, be careful!
+  * Writing global code for all partials and pages. However, be careful!
 
 * The `src/layouts/global/global.scss` file is only for:
   * Defining global JS constants, variables for the partials.
-  * Writing global code for all pages and patials. However, be careful!
+  * Writing global code for all partials and pages. However, be careful!
 
 ### Partial Rules
 Only code HTML, SCSS, JS in the **partials/app-[partial name]** folders.
