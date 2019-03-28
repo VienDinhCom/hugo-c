@@ -1,4 +1,4 @@
-
+# Partial-based (Component-based) Workspace for Hugo CMS Development
 
 ## Rules
 
