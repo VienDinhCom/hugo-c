@@ -38,12 +38,12 @@ You can use this Emmet shortcut `section.app-post-single|c` and press `tab` to c
 
 **3.** For `app-[partial name].js`, you will use `$(this)` to select the current partial in DOM.
 ```
-  $(this).css('color', 'blue');
+$(this).css('color', 'blue');
 ```
 ```
-  const partial = this;
-  
-  $(partial).find('button').click(function() {
-    $(partial).css('color', 'blue');
-  });
+const partial = this;
+
+$(partial).find('button').click(function() {
+  $(partial).css('color', 'blue');
+});
 ```
