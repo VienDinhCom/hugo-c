@@ -25,6 +25,7 @@ Only code HTML, SCSS, JS in the `src/layouts/partials/app-[partial name]` folder
 </section>
 <!-- /.app-post-single -->
 ```
+You can use this Emmet shortcut `section.app-post-single|c` to create the comments more quickly.
 
 **2.** For `app-[partial name].scss`
 
