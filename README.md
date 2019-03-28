@@ -27,7 +27,7 @@ Only code HTML, SCSS, JS in the `src/layouts/partials/app-[partial name]` folder
 ```
 You can use this Emmet shortcut `section.app-post-single|c` and press `tab` to create the comments more quickly.
 
-**2.** For `app-[partial name].scss`, your code must be in `:host { ... }` to make the CSS conflicts.
+**2.** For `app-[partial name].scss`, your code must be in `:host { ... }` to avoid the CSS conflicts.
 ```
 :host {
   color: black;
